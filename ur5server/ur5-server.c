@@ -27,6 +27,7 @@ int main(int argc, char **argv)
 	int port= 8000;
 	char * interface = "lo";
 	char * ip_addr_s= "";
+	char * garbage= NULL;
 	int c;
    	opterr = 0;
 
@@ -34,7 +35,13 @@ int main(int argc, char **argv)
         switch (c)
            {
             case 'p':
-            	port = atoi(optarg);
+            	port = (int) strtol(argv[2], &garbage, 10);
+            	if(port >65535){
+        			exit(1);
+    			}else if(port < 1024 && geteuid() != 0){
+    				printf("ports below 1024 are priviliged! Run programm as root\n");
+    				exit(1);
+    			}
             	break;
             case 'i':
             	iflag=1;
@@ -59,19 +66,20 @@ int main(int argc, char **argv)
     		interface = "lo";
     		ip_addr_s = "127.0.0.1";
     	}
-    	if(inet_aton(ip_addr_s, &serv_addr.sin_addr) == 0){
-    		printf("ip address not valid");
-    		exit(1);
-    	}
+	    	if(inet_aton(ip_addr_s, &serv_addr.sin_addr) == 0){
+	    		printf("ip address not valid");
+	    		exit(1);
+	    	}
     }else{
     	ip_addr_s = get_interface_addr(interface, &serv_addr.sin_addr);
 	}
-
+	
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0){
 		error("ERROR opening socket");
 	}
-
+	int optval = 1;
+	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof optval);
 	bzero((char *) &serv_addr, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_port = htons(port);
