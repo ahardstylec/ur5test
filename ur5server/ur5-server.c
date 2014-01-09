@@ -91,18 +91,18 @@ int main(int argc, char **argv)
  	printf("Server is running. listen on %s:%i\n", ip_addr_s, port);
 
 	listen(sockfd,5);
-	//while(1) {
 		clilen = sizeof(cli_addr);
 		newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
 		if (newsockfd < 0)
 			error("ERROR on accept");
-
-		bzero(buffer,256);
-		n = read(newsockfd, buffer, 255);
-		if (n < 0) error("ERROR reading from socket");
-		printf("Here is the message: %s\n", buffer);
-		n = write(newsockfd,"I got your message",18);
-		if (n < 0) error("ERROR writing to socket");
+		while(1) {
+			bzero(buffer,256);
+			n = read(newsockfd, buffer, 255);
+			if (n < 0) error("ERROR reading from socket");
+			printf("Here is the message: %s\n", buffer);
+			n = write(newsockfd,"I got your message", 18);
+			if (n < 0) error("ERROR writing to socket");
+		}
 		close(newsockfd);
 		close(sockfd);
 	//}

@@ -60,21 +60,24 @@ int main(int argc, char **argv){
     }
     printf("suceess\n");
     /* get message line from the user */
-    printf("Please enter msg: ");
-    bzero(buf, BUFSIZE);
-    fgets(buf, BUFSIZE, stdin);
+    while(1){
+        printf("Please enter msg: ");
+        bzero(buf, BUFSIZE);
+        fgets(buf, BUFSIZE, stdin);
 
-    /* send the message line to the server */
-    n = write(sockfd, buf, strlen(buf));
-    if (n < 0) 
-      error("ERROR writing to socket");
+        /* send the message line to the server */
+        n = write(sockfd, buf, strlen(buf));
+        if (n < 0) 
+          error("ERROR writing to socket");
 
-    /* print the server's reply */
-    bzero(buf, BUFSIZE);
-    n = read(sockfd, buf, BUFSIZE);
-    if (n < 0) 
-      error("ERROR reading from socket");
-    printf("Echo from server: %s", buf);
+        /* print the server's reply */
+        bzero(buf, BUFSIZE);
+        n = read(sockfd, buf, BUFSIZE);
+        if (n < 0) 
+          error("ERROR reading from socket");
+        printf("Echo from server: %s", buf);    
+    }
+    
     close(sockfd);
     return 0;
 }
