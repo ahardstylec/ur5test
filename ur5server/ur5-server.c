@@ -97,10 +97,11 @@ int main(int argc, char **argv)
 			error("ERROR on accept");
 		while(1) {
 			bzero(buffer,256);
+
 			n = read(newsockfd, buffer, 255);
 			if (n < 0) error("ERROR reading from socket");
 			printf("Here is the message: %s\n", buffer);
-			n = write(newsockfd, buffer , sizeof(buffer);
+			n = write(newsockfd, buffer , sizeof(buffer));
 			if (n < 0) error("ERROR writing to socket");
 		}
 		close(newsockfd);
