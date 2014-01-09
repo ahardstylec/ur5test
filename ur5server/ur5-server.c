@@ -18,16 +18,15 @@ void error(const char *msg)
 
 int main(int argc, char **argv)
 {
-	int sockfd, newsockfd, portno;
-	unsigned long * ip_addr;
+	int sockfd, newsockfd;
 	socklen_t clilen;
 	char buffer[256];
 	struct sockaddr_in serv_addr, cli_addr;
 	int n;
-	char * ip_addr_s= "";
 	int iflag = 0;
-	int port=8000;
-	char * interface = "";
+	int port= 8000;
+	char * interface = "lo";
+	char * ip_addr_s= "";
 	int c;
    	opterr = 0;
 
@@ -57,20 +56,17 @@ int main(int argc, char **argv)
     	if(optind < argc){
 			ip_addr_s = argv[optind];
     	}else{
-    		interface ="lo";
-    		ip_addr_s ="127.0.0.1";
+    		interface = "lo";
+    		ip_addr_s = "127.0.0.1";
     	}
-    	if(inet_addr(ip_addr_s) == -1){
-    		printf("ip address wrong");
+    	if(inet_aton(ip_addr_s, &serv_addr.sin_addr) == 0){
+    		printf("ip address not valid");
     		exit(1);
     	}
-    	*ip_addr= inet_addr(ip_addr_s);
     }else{
-    	ip_addr_s = get_interface_addr(interface, ip_addr);
+    	ip_addr_s = get_interface_addr(interface, &serv_addr.sin_addr);
 	}
 
- 	printf ("port = %d, interface = %s, ip = %s\n", port, interface, ip_addr_s);
- 	return 0;
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0){
 		error("ERROR opening socket");
@@ -78,16 +74,14 @@ int main(int argc, char **argv)
 
 	bzero((char *) &serv_addr, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_addr.s_addr= *ip_addr;
-	serv_addr.sin_port = htons(portno);
+	serv_addr.sin_port = htons(port);
 
 	if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0){
-		printf("ERROR on binding on port %i", portno);
+		printf("ERROR on binding on port %i", port);
 		exit(1);
 	}
- 	printf("Server is running. listen on %s:%i\n", ip_addr_s, portno);
+ 	printf("Server is running. listen on %s:%i\n", ip_addr_s, port);
 
-	return 0;
 	listen(sockfd,5);
 	//while(1) {
 		clilen = sizeof(cli_addr);

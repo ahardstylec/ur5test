@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-char * get_interface_addr(char *interface, unsigned long *ip_addr){
+char * get_interface_addr(char *interface, struct in_addr *ip_addr){
 	// get ip addr of interface
 
 	struct ifreq ifr;
@@ -24,6 +24,6 @@ char * get_interface_addr(char *interface, unsigned long *ip_addr){
 	close(fd);
  
 	struct sockaddr_in* ipaddr = (struct sockaddr_in*)&ifr.ifr_addr;
-	*ip_addr= ipaddr->sin_addr.s_addr;
-	return inet_ntoa((ipaddr->sin_addr));
+	*ip_addr= ipaddr->sin_addr;
+	return inet_ntoa(*ip_addr);
 }
