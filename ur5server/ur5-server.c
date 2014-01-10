@@ -4,11 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/types.h> 
+#include <ctype.h>
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "tcphelper.h"
+#include <ur5.h>
+
+using namespace std;
 
 void error(const char *msg)
 {
@@ -18,18 +22,22 @@ void error(const char *msg)
 
 int main(int argc, char **argv)
 {
-	int sockfd, newsockfd;
-	socklen_t clilen;
-	char buffer[256];
 	struct sockaddr_in serv_addr, cli_addr;
-	int n;
+   	struct ur5_data * ur5_d= create_ur5_data();
+   	struct ur5_data * ur5_new_data;
+
+	int sockfd, newsockfd, c, n;
 	int iflag = 0;
 	int port= 8000;
+
 	char * interface = "lo";
-	char * ip_addr_s= "";
+	char * ip_addr_s;
 	char * garbage= NULL;
-	int c;
+   	char buffer[ur5_d->size];
+
+	float average_time= 0.0;
    	opterr = 0;
+	socklen_t clilen;
 
 	while ((c = getopt (argc, argv, "p:i:")) != -1)
         switch (c)
@@ -95,17 +103,56 @@ int main(int argc, char **argv)
 		newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
 		if (newsockfd < 0)
 			error("ERROR on accept");
-		while(1) {
-			bzero(buffer,256);
+		unsigned long int iterations=0;
+		unsigned long int packages_send=0;
+		unsigned long int packages_recieved=0;
+		unsigned long int errors=0;
+		while(iterations<1000000) {
 
-			n = read(newsockfd, buffer, 255);
-			if (n < 0) error("ERROR reading from socket");
-			printf("Here is the message: %s\n", buffer);
-			n = write(newsockfd, buffer , sizeof(buffer));
-			if (n < 0) error("ERROR writing to socket");
+//---------------------------- send  -------------------------------------------------------------------
+			n = write(newsockfd, (char*) ur5_d , ur5_d->size);
+			if (n < 0){
+				errors++;
+				continue;
+				//error("ERROR writing to socket");
+			}
+			packages_send++;
+//------------------------------------------------------------------------------------------------------
+
+//---------------------------- wait for client or timeout ----------------------------------------------
+			
+//---------------------------- recieve -----------------------------------------------------------------
+			bzero(buffer, ur5_d->size);
+			read(newsockfd, buffer, ur5_d->size);
+			ur5_new_data= (struct ur5_data *) buffer;
+
+			if (n < 0){
+				errors++;
+				continue;
+				//error("ERROR reading from socket");	
+			}
+			packages_recieved++;
+//------------------------------------------------------------------------------------------------------
+
+//---------------------------- do stuff with data ------------------------------------------------------
+
+		// ....
+
+//------------------------------------------------------------------------------------------------------
+
+			iterations++;
 		}
+
 		close(newsockfd);
 		close(sockfd);
+
+		puts("connection to client closed");
+		printf("average connection time: %6.2f\n", average_time);
+		printf("packages send: %d\n", packages_send);
+		printf("packages recieved: %d\n", packages_recieved);
+		printf("errors occured: %d\n", errors);
+		puts("\n");
+		print_ur5_data(ur5_d);
 	//}
 	return 0;
 }

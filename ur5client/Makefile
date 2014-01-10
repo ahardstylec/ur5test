@@ -2,10 +2,11 @@
 # Projekt: ur5-tcp-testclient
 
 VERSION = 0.08
-CC      = gcc
+CC      = g++
 CFLAGS  = -Wall -g -DVERSION=\"$(VERSION)\"
-LIBPATH = -Llibs
-LDFLAGS = 
+LIBPATH = -L../libs
+HFLAGS 	= -I../libs	 
+LDFLAGS = -lur5
 
 #-Lkinematics -Lconfiguration -Ldev -Lcollision -Lm -Lmath
 

@@ -4,29 +4,30 @@
 #include <unistd.h>
 #include <math.h>
 #include <sched.h>
-#include <errno.h>
-
 #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include "../libs/ur5.h"
 
-
-#define BUFSIZE 1024
-
-void error(char *msg) {
-    perror(msg);
-    exit(0);
-}
+using namespace std;
 
 int main(int argc, char **argv){
 	int sockfd, portno, n;
     struct sockaddr_in serveraddr;
     struct hostent *server;
+    struct ur5_data * ur5_d;
+    ur5_d->size = sizeof(*ur5_d);
+    bzero(ur5_d, ur5_d->size);
     char * ip_string="";
     char *garbage=NULL;
-    char buf[BUFSIZE];
+    char buf[ur5_d->size];
 	bzero(&serveraddr, sizeof(serveraddr));
+
 	if (argc != 3) {
        fprintf(stderr,"usage: %s <ip> <port>\n", argv[0]);
        exit(1);
@@ -61,20 +62,20 @@ int main(int argc, char **argv){
     printf("suceess\n");
     /* get message line from the user */
     while(1){
-        printf("Please enter msg: ");
-        bzero(buf, BUFSIZE);
-        fgets(buf, BUFSIZE, stdin);
-
-        /* send the message line to the server */
-        n = write(sockfd, buf, strlen(buf));
-        if (n < 0) 
-          error("ERROR writing to socket");
 
         /* print the server's reply */
-        bzero(buf, BUFSIZE);
-        n = read(sockfd, buf, BUFSIZE);
-        if (n < 0) 
+        bzero(buf, ur5_d->size);
+        read(sockfd, buf, sizeof(*ur5_d));
+        ur5_d= (struct ur5_data *) buf;
+
+        if (n < 0)
           error("ERROR reading from socket");
+        
+        /* send the message line to the server */
+        n = write(sockfd, (char *) ur5_d, sizeof(*ur5_d));
+        if (n < 0) 
+          error("ERROR writing to socket");
+        
         printf("Echo from server: %s", buf);    
     }
     

@@ -1,8 +1,21 @@
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <arpa/inet.h>
+#include <cstdlib>
+#include <cerrno>
+#include <cstring>
+#include <cstdio>
+#include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
+#include <string.h>
+#include <unistd.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+using namespace std;
 
 char * get_interface_addr(char *interface, struct in_addr *ip_addr){
 	// get ip addr of interface
@@ -17,7 +30,7 @@ char * get_interface_addr(char *interface, struct in_addr *ip_addr){
     strncpy(ifr.ifr_name , interface , IFNAMSIZ-1);
  
     if(ioctl(fd, SIOCGIFADDR, &ifr) == -1){
-    	error("interface not found or offline");
+    	perror("interface not found or offline");
     	close(fd);
 		exit(1);
 	}    
