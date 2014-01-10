@@ -148,8 +148,8 @@ int main(int argc, char **argv)
 //------------------------------------------------------------------------------------------------------
 			gettimeofday(&stop, NULL);
 			unsigned long int time_in_microsec = 8000 - (stop.tv_usec - start.tv_usec);
-			if(time_in_microsec > 0){
-				printf("\rpackages send: %d, sleep for %luusec", iterations, time_in_microsec);
+			if(time_in_microsec > 0 && time_in_microsec < 8000){
+				printf("\rpackages send: %d, sleep for %luusec\t\t", iterations, time_in_microsec);
 				fflush(stdout);
 				usleep(time_in_microsec);
 			}
@@ -164,7 +164,7 @@ int main(int argc, char **argv)
 		close(sockfd);
 
 		puts("connection to client closed");
-		printf("average connection time: %10.2fusec\n", average_time/iterations);
+		printf("average connection time: %10.4fmsec\n", average_time/iterations / 1000);
 		printf("packages send: %d\n", packages_send);
 		printf("packages recieved: %d\n", packages_recieved);
 		printf("errors occured: %d\n", errors);
