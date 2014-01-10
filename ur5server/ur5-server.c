@@ -114,7 +114,7 @@ int main(int argc, char **argv)
 		unsigned long int average=0;
 		struct timeval stop, start;
 		
-		while(iterations<1000000) {
+		while(iterations<1000) {
 			gettimeofday(&start, NULL);
 //---------------------------- send  -------------------------------------------------------------------
 			n = write(newsockfd, (char*) ur5_d , sizeof(*ur5_d));
@@ -149,8 +149,6 @@ int main(int argc, char **argv)
 			gettimeofday(&stop, NULL);
 			long int time_in_microsec = 8000 - (stop.tv_usec - start.tv_usec);
 			if(time_in_microsec > 0 && time_in_microsec < 8000){
-				printf("\rpackages send: %d, sleep for %luusec\t\t", iterations, time_in_microsec);
-				fflush(stdout);
 				usleep(time_in_microsec);
 			}else if(time_in_microsec > 8000){
 				errors++;
