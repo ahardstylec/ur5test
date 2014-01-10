@@ -163,9 +163,9 @@ int main(int argc, char **argv)
 		close(newsockfd);
 		close(sockfd);
 
-		puts("\r\nconnection to client closed");
-		printf("average connection time: %10.4fmsec\n", (float)(average_time/iterations));
-		printf("packages send: \t\t%d\n", packages_send);
+		puts("\r\t\t\t\t\nconnection to client closed");
+		printf("average connection time: \t%10.4fmsec\n", (float)(average_time/iterations));
+		printf("packages send: \t\t\t%d\n", packages_send);
 		printf("packages recieved: \t\t%d\n", packages_recieved);
 		printf("errors occured: \t\t%d\n", errors);
 		puts("\n");
