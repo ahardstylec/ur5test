@@ -164,10 +164,10 @@ int main(int argc, char **argv)
 		close(sockfd);
 
 		puts("\r\nconnection to client closed");
-		printf("average connection time: %10.4fmsec\n", (float)(average_time/iterations)/1000);
-		printf("packages send: %d\n", packages_send);
-		printf("packages recieved: %d\n", packages_recieved);
-		printf("errors occured: %d\n", errors);
+		printf("average connection time: %10.4fmsec\n", (float)(average_time/iterations));
+		printf("packages send: \t\t%d\n", packages_send);
+		printf("packages recieved: \t\t%d\n", packages_recieved);
+		printf("errors occured: \t\t%d\n", errors);
 		puts("\n");
 		print_ur5_data(ur5_d);
 	//}
