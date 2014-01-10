@@ -163,8 +163,8 @@ int main(int argc, char **argv)
 		close(newsockfd);
 		close(sockfd);
 
-		puts("connection to client closed");
-		printf("average connection time: %10.4fmsec\n", average_time/iterations / 1000);
+		puts("\rconnection to client closed");
+		printf("average connection time: %10.4fmsec\n", (average_time/iterations )/1000);
 		printf("packages send: %d\n", packages_send);
 		printf("packages recieved: %d\n", packages_recieved);
 		printf("errors occured: %d\n", errors);
