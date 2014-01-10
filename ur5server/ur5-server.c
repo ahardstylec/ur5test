@@ -106,6 +106,7 @@ int main(int argc, char **argv)
 		newsockfd = accept(sockfd, (struct sockaddr  *) &cli_addr, &clilen);
 		if (newsockfd < 0)
 			error("ERROR on accept");
+		printf("client connected: %s\n", inet_ntoa(cli_addr.sin_addr));
 		unsigned long int iterations=0;
 		unsigned long int packages_send=0;
 		unsigned long int packages_recieved=0;
@@ -151,6 +152,8 @@ int main(int argc, char **argv)
 			gettimeofday(&stop, NULL);
 			average_time = average_time + (stop.tv_usec - start.tv_usec);
 			iterations++;
+			printf("\rpackages send: %d", iterations);
+			fflush(stdout);
 		}
 
 		close(newsockfd);
