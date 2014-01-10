@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -14,18 +15,18 @@
 
 using namespace std;
 
-void error(const char *msg)
-{
-    perror(msg);
-    exit(1);
-}
-
 int main(int argc, char **argv)
 {
 	struct sockaddr_in serv_addr, cli_addr;
+   	
    	struct ur5_data * ur5_d= create_ur5_data();
-   	struct ur5_data * ur5_new_data;
+   	struct ur5_data * ur5_new_data= create_ur5_data();
+	struct ur5_data * ur5_d_temp;
 
+    ur5_d->tcp[TCP_X] = 40;
+    ur5_d->tcp[TCP_Y] = 30;
+    ur5_d->tcp[TCP_Z] = 20;
+	
 	int sockfd, newsockfd, c, n;
 	int iflag = 0;
 	int port= 8000;
@@ -43,7 +44,7 @@ int main(int argc, char **argv)
         switch (c)
            {
             case 'p':
-            	port = (int) strtol(argv[2], &garbage, 10);
+            	port = (int) strtol(optarg, &garbage, 10);
             	if(port >65535){
         			exit(1);
     			}else if(port < 1024 && geteuid() != 0){
@@ -66,6 +67,7 @@ int main(int argc, char **argv)
            	default:
            		abort ();
            }
+
      
     if(iflag == 0){
     	if(optind < argc){
@@ -81,7 +83,8 @@ int main(int argc, char **argv)
     }else{
     	ip_addr_s = get_interface_addr(interface, &serv_addr.sin_addr);
 	}
-	
+
+
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0){
 		error("ERROR opening socket");
@@ -100,17 +103,20 @@ int main(int argc, char **argv)
 
 	listen(sockfd,5);
 		clilen = sizeof(cli_addr);
-		newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+		newsockfd = accept(sockfd, (struct sockaddr  *) &cli_addr, &clilen);
 		if (newsockfd < 0)
 			error("ERROR on accept");
 		unsigned long int iterations=0;
 		unsigned long int packages_send=0;
 		unsigned long int packages_recieved=0;
 		unsigned long int errors=0;
+		unsigned long int average=0;
+		struct timeval stop, start;
+		
 		while(iterations<1000000) {
-
+			gettimeofday(&start, NULL);
 //---------------------------- send  -------------------------------------------------------------------
-			n = write(newsockfd, (char*) ur5_d , ur5_d->size);
+			n = write(newsockfd, (char*) ur5_d , sizeof(*ur5_d));
 			if (n < 0){
 				errors++;
 				continue;
@@ -122,9 +128,7 @@ int main(int argc, char **argv)
 //---------------------------- wait for client or timeout ----------------------------------------------
 			
 //---------------------------- recieve -----------------------------------------------------------------
-			bzero(buffer, ur5_d->size);
-			read(newsockfd, buffer, ur5_d->size);
-			ur5_new_data= (struct ur5_data *) buffer;
+			read(newsockfd, ur5_new_data, sizeof(*ur5_d));
 
 			if (n < 0){
 				errors++;
@@ -137,9 +141,12 @@ int main(int argc, char **argv)
 //---------------------------- do stuff with data ------------------------------------------------------
 
 		// ....
+			ur5_d_temp = ur5_d;
+			ur5_d = ur5_new_data;
 
 //------------------------------------------------------------------------------------------------------
-
+			gettimeofday(&stop, NULL);
+			average_time = average_time + (stop.tv_usec - start.tv_usec);
 			iterations++;
 		}
 
@@ -147,7 +154,7 @@ int main(int argc, char **argv)
 		close(sockfd);
 
 		puts("connection to client closed");
-		printf("average connection time: %6.2f\n", average_time);
+		printf("average connection time: %6.2f\n", average_time/iterations);
 		printf("packages send: %d\n", packages_send);
 		printf("packages recieved: %d\n", packages_recieved);
 		printf("errors occured: %d\n", errors);

@@ -4,10 +4,9 @@
 VERSION = 0.08
 CC      = g++
 CFLAGS  = -Wall -g -DVERSION=\"$(VERSION)\"
-
 LIBPATH = -L../libs/
-LDFLAGS = -lur5
 HFILES = -I../libs
+LDFLAGS = -lur5
 
 #-Lkinematics -Lconfiguration -Ldev -Lcollision -Lm -Lmath
 

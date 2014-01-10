@@ -5,14 +5,11 @@
 #include <math.h>
 #include <sched.h>
 #include <string.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <sys/types.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
-#include "../libs/ur5.h"
+#include <ur5.h>
 
 using namespace std;
 
@@ -20,12 +17,12 @@ int main(int argc, char **argv){
 	int sockfd, portno, n;
     struct sockaddr_in serveraddr;
     struct hostent *server;
-    struct ur5_data * ur5_d;
-    ur5_d->size = sizeof(*ur5_d);
-    bzero(ur5_d, ur5_d->size);
+    
+    struct ur5_data ur5_d;
+    bzero(&ur5_d, sizeof(ur5_d));
+
     char * ip_string="";
     char *garbage=NULL;
-    char buf[ur5_d->size];
 	bzero(&serveraddr, sizeof(serveraddr));
 
 	if (argc != 3) {
@@ -64,19 +61,19 @@ int main(int argc, char **argv){
     while(1){
 
         /* print the server's reply */
-        bzero(buf, ur5_d->size);
-        read(sockfd, buf, sizeof(*ur5_d));
-        ur5_d= (struct ur5_data *) buf;
+        
+        n = read(sockfd, &ur5_d, sizeof(ur5_d));
 
         if (n < 0)
           error("ERROR reading from socket");
+        ur5_d.force = 5;
+        ur5_d.position[3]++;
+        ur5_d.position[4] = (ur5_d.position[3] + 2) / 2;
         
         /* send the message line to the server */
-        n = write(sockfd, (char *) ur5_d, sizeof(*ur5_d));
+        n = write(sockfd, (char *) &ur5_d, sizeof(ur5_d));
         if (n < 0) 
           error("ERROR writing to socket");
-        
-        printf("Echo from server: %s", buf);    
     }
     
     close(sockfd);
