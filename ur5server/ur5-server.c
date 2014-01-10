@@ -154,7 +154,7 @@ int main(int argc, char **argv)
 		close(sockfd);
 
 		puts("connection to client closed");
-		printf("average connection time: %6.2f\n", average_time/iterations);
+		printf("average connection time: %10.2fusec\n", average_time/iterations);
 		printf("packages send: %d\n", packages_send);
 		printf("packages recieved: %d\n", packages_recieved);
 		printf("errors occured: %d\n", errors);
