@@ -67,8 +67,8 @@ int main(int argc, char **argv){
         if (n < 0)
           error("ERROR reading from socket");
         ur5_d.force = 5;
-        ur5_d.position[3]++;
-        ur5_d.position[4] = (ur5_d.position[3] + 2) / 2;
+        // ur5_d.position[3]++;
+        // ur5_d.position[4] = (ur5_d.position[3] + 2) / 2;
         
         /* send the message line to the server */
         n = write(sockfd, (char *) &ur5_d, sizeof(ur5_d));
