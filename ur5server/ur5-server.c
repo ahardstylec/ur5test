@@ -148,7 +148,11 @@ int main(int argc, char **argv)
 //------------------------------------------------------------------------------------------------------
 			gettimeofday(&stop, NULL);
 			unsigned long int time_in_microsec = 8000 - (stop.tv_usec - start.tv_usec);
-			if(time_in_microsec > 0) usleep(time_in_microsec);
+			if(time_in_microsec > 0){
+				printf("\rpackages send: %d, sleep for %luusec", iterations, time_in_microsec);
+				fflush(stdout);
+				usleep(time_in_microsec);
+			}
 			gettimeofday(&stop, NULL);
 			average_time = average_time + (stop.tv_usec - start.tv_usec);
 			iterations++;
